@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """ SET DATABASE MODULE """
-import sqlite3
-from tables import tables, fillings, state
+from settings import TABLES, FILLINGS, STATE, DB_FILE
 from dbquery.query import DB
 
 
@@ -30,12 +29,10 @@ def fill_tables(db_file, fillings):
 
 
 if __name__ == "__main__":
-
     DB_FILE = "airbase.db"
-
-    build_tables(db_file=DB_FILE, tables=tables)
-    fill_tables(db_file=DB_FILE, fillings=fillings)
-    fill_tables(db_file=DB_FILE, fillings=state)
+    build_tables(db_file=DB_FILE, tables=TABLES)
+    fill_tables(db_file=DB_FILE, fillings=FILLINGS)
+    fill_tables(db_file=DB_FILE, fillings=STATE)
 
 
 

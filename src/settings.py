@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-"""THIS MODULE CONTAIN TABLES DB, INITIAL FILLINGS AND RANDOM STATE GENERATION"""
+""" SETTINGS MODULE """
 import random
 
+DB_FILE = "airbase.db"
+
 # ######### CREATE TABLES ###############
-tables = {
+TABLES = {
   "plane_types": """
     CREATE TABLE IF NOT EXISTS plane_types (
         id INTEGER PRIMARY KEY,
@@ -55,7 +57,7 @@ tables = {
 
 
 # ######### DATABASE FILINGS ##################
-fillings = {
+FILLINGS = {
   "plane_types": [
     {
       "id": 1,
@@ -128,7 +130,7 @@ fillings = {
 
 
 # ######## GENERATE STATE ###################
-state = {
+STATE = {
   "airlines_planes": list(
     {"airline_id": 1, "plane_id": random.randint(1, 6)} for _ in xrange(20)
   )
