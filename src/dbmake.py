@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """ SET DATABASE MODULE """
-from settings import TABLES, FILLINGS, STATE, DB_FILE
-from dbquery.query import DB
+from settings import TABLES, FILLINGS, STATE
+from dbquery import DB
 
 
 def _gen_fill_queries(fillings):
@@ -16,23 +16,23 @@ def _gen_fill_queries(fillings):
             yield query
 
 
-def build_tables(db_file, tables):
+def build_tables(tables):
     """build database function"""
     queries = tables.values()
-    DB.queries(db_file=db_file, queries=queries)
+    DB.queries(queries=queries)
 
 
-def fill_tables(db_file, fillings):
+def fill_tables(fillings):
     """FILL database tables"""
     queries = _gen_fill_queries(fillings)
-    DB.queries(db_file=db_file, queries=queries)
+    DB.queries(queries=queries)
 
 
 if __name__ == "__main__":
     DB_FILE = "airbase.db"
-    build_tables(db_file=DB_FILE, tables=TABLES)
-    fill_tables(db_file=DB_FILE, fillings=FILLINGS)
-    fill_tables(db_file=DB_FILE, fillings=STATE)
+    build_tables(tables=TABLES)
+    fill_tables(fillings=FILLINGS)
+    fill_tables(fillings=STATE)
 
 
 

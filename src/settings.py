@@ -3,6 +3,7 @@
 import random
 
 DB_FILE = "airbase.db"
+AIR_LINES = 1
 
 # ######### CREATE TABLES ###############
 TABLES = {
@@ -46,11 +47,11 @@ TABLES = {
     );""",
   "staff": """
     CREATE TABLE IF NOT EXISTS staff (
-        id INTEGER PRIMARY KEY,
-        airlines_id INTEGER
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        airline_id INTEGER,
         name TEXT,
         position TEXT,
-        FOREIGN KEY(airlines_id) REFERENCES airlines(id)
+        FOREIGN KEY(airline_id) REFERENCES airlines(id)
     );""",
 }
 ###############################################
@@ -123,6 +124,18 @@ FILLINGS = {
       "id": 1,
       "name": "PyAir",
       "balance": 0.0
+    }
+  ],
+  "staff": [
+    {
+      "airline_id": 1,
+      "name": "John",
+      "position": "manager"
+    },
+    {
+      "airline_id": 1,
+      "name": "Mark",
+      "position": "dispatcher"
     }
   ]
 }
