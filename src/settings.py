@@ -55,6 +55,14 @@ TABLES = {
         position TEXT,
         FOREIGN KEY(airline_id) REFERENCES airlines(id)
     );""",
+  "notifications": """
+    CREATE TABLE IF NOT EXISTS notifications (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        airline_id INTEGER,
+        text TEXT,
+        date_time INTEGER,
+        FOREIGN KEY(airline_id) REFERENCES airlines(id)
+    );""",
 }
 ###############################################
 

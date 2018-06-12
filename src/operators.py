@@ -44,6 +44,7 @@ class Operator(object):
         FROM airlines_planes AS ap LEFT JOIN planes AS p
         WHERE ap.plane_id=p.id AND ap.airline_id={id}"""
     ADD_FLIGHT_QUERY = "INSERT INTO flights (plane_id, date_time, passengers, cargo) values ({plane_id}, {date_time}, {passengers}, {cargo})"
+    ADD_NOTIFICATION = "INSERT INTO notifications (airline_id, text, date_time) values ({airline_id}, {text}, {date_time})"
 
     @property
     def balance(self):
@@ -126,10 +127,9 @@ class Manager(Operator):
 
 class Dispatcher(Operator):
     """Dispatcher class"""
-    def __init__(self, manager):
+    def __init__(self):
         self.airline_id = settings.AIR_LINES
         self.name = DB.query(self.GET_DISPATCHER_QUERY.format(id=settings.AIR_LINES))[0][0]
-        self.manager = manager
 
     def _add_flight(self, plane_id, date_time, passengers, cargo):
         DB.query(self.ADD_FLIGHT_QUERY.format(plane_id=plane_id, date_time=date_time, passengers=passengers, cargo=cargo))
@@ -151,7 +151,7 @@ class Dispatcher(Operator):
                 break
         if left_passengers or left_cargo:
             notification = "LEFT: {} passengers and {} ton cargo".format(left_passengers, left_cargo)
-            self._push_manager(self.manager, notification)
+            self.push_notification(notification)
 
-    def _push_manager(self, manager, notification):
-        manager.notifications.append(notification)
+    def push_notification(self, notification):
+        DB.query(self.ADD_NOTIFICATION.format(airline_id=self.airline_id, date_time=time.time(), text=notification))

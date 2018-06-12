@@ -15,15 +15,17 @@ def check_mode():
 
 
 def manager_mode():
+    man = operators.Manager()
     while True:
         print("MANAGER MODE")
-        raw_input()
+        raw_input("M")
 
 
 def dispatcher_mode():
+    disp = operators.Dispatcher()
     while True:
         print("DISPATCHER MODE")
-        raw_input()
+        raw_input("D")
 
 
 if __name__ == "__main__":
@@ -35,11 +37,3 @@ if __name__ == "__main__":
     elif mode.dispatcher:
         dispatcher_mode()
 
-#
-# man = operators.Manager()
-# disp = operators.Dispatcher(manager=man)
-#
-#
-# disp.flight(5000, 400)
-#
-# print man.notifications
