@@ -4,6 +4,8 @@ import random
 
 DB_FILE = "airbase.db"
 AIR_LINES = 1
+PASSENGER_PAYMENT = 500
+CARGO_TON_PAYMENT = 1000
 
 # ######### CREATE TABLES ###############
 TABLES = {

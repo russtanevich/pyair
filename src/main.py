@@ -4,6 +4,9 @@ import operators
 
 
 man = operators.Manager()
+disp = operators.Dispatcher(manager=man)
 
-# man.buy_plane(1)
-print(man.name, man.balance)
+
+disp.flight(5000, 400)
+
+print man.notifications
