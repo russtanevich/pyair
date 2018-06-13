@@ -19,12 +19,20 @@
             <div class="col-sm-8">
                 <div class="panel panel-success">
                     <div class="panel-heading">
-                        <h3 class="panel-title">MANAGER</h3>
+                        <h3 class="panel-title">MANAGER -- {{ manager_name }}</h3>
                     </div>
                 <div class="panel-body">
                     <div class="row">
                         <div class="col-sm-7">
-                            <h2>BALANCE <b>$100000</b></h2>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <button type="button" class="btn btn-success btn-lg form-control">BALANCE <b>${{ balance/1000000 }}M</b></button>
+                                </div>
+                                <div class="col-sm-6">
+                                    <a href="/reset"><button type="button" class="btn btn-danger btn-lg form-control">RESET</button></a>
+                                </div>
+                            </div>
+                            <br>
                             <div class="panel panel-success">
                                 <div class="panel-heading">AIRPLANES PARK</div>
                                     <div class="table-responsive">
@@ -42,16 +50,18 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                            {% for plane in own_planes %}
                                                 <tr>
-                                                    <td>123-1234</td>
-                                                    <td>Boeing 747</td>
-                                                    <td>passenger</td>
-                                                    <td>150000000</td>
-                                                    <td>0</td>
-                                                    <td>500</td>
+                                                    <td>{{ plane.id }}</td>
+                                                    <td>{{ plane.name }}</td>
+                                                    <td>{{ plane.plane_type_id }}</td>
+                                                    <td>${{ plane.price/1000000 }}M</td>
+                                                    <td>{{ plane.passengers }}</td>
+                                                    <td>{{ plane.cargo }}</td>
                                                     <td>75</td>
-                                                    <td><button class="btn btn-xs btn-success" type="button">SELL</button></td>
+                                                    <td><a href="/sell_{{ plane.id }}"><button class="btn btn-xs btn-success" type="button">SELL</button></a></td>
                                                 </tr>
+                                            {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
@@ -62,26 +72,26 @@
                                     <div class="col-sm-6">
                                         <h4>Passenger planes</h4>
                                         <div class="list-group">
-                                            <a href="#" class="list-group-item list-group-item-success">PLANES 25</a>
-                                            <a href="#" class="list-group-item list-group-item-warning">SEATS  7566</a>
-                                            <a href="#" class="list-group-item list-group-item-danger">FLIGHTS  75</a>
+                                            <a href="#" class="list-group-item list-group-item-success">{{ count_passenger_planes }} PLANES</a>
+                                            <a href="#" class="list-group-item list-group-item-warning">{{ passengers_capacity }} SEATS</a>
+                                            <a href="#" class="list-group-item list-group-item-danger">{{ passenger_flights }} FLIGHTS</a>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <h4>Cargo planes</h4>
                                         <div class="list-group">
-                                            <a href="#" class="list-group-item list-group-item-success">PLANES 17</a>
-                                            <a href="#" class="list-group-item list-group-item-warning">TONS  756</a>
-                                            <a href="#" class="list-group-item list-group-item-danger">FLIGHTS 100</a>
+                                            <a href="#" class="list-group-item list-group-item-success">{{ count_cargo_planes }} PLANES</a>
+                                            <a href="#" class="list-group-item list-group-item-warning">{{ cargo_capacity }} TONS</a>
+                                            <a href="#" class="list-group-item list-group-item-danger">{{ cargo_flights }} FLIGHTS</a>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="panel panel-danger">
                                     <div class="panel-heading">NOTIFICATIONS</div>
                                     <ul class="list-group">
-                                        <li class="list-group-item">Cras justo odio</li>
-                                        <li class="list-group-item">Dapibus ac facilisis in</li>
-                                        <li class="list-group-item">Morbi leo risus</li>
+                                        {% for note in notifications %}
+                                        <li class="list-group-item">{{ strftime(note.date_time) }} -- {{ note.text }}</li>
+                                        {% endfor %}
                                     </ul>
                                 </div>
                                 <div class="panel panel-success">
@@ -99,24 +109,30 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                {% for plane in market_planes %}
                                                 <tr>
-                                                    <td>Boeing 747</td>
-                                                    <td>passenger</td>
-                                                    <td>15000000</td>
-                                                    <td>0</td>
-                                                    <td>500</td>
-                                                    <td><button class="btn btn-xs btn-danger" type="button">BUY</button></td>
+                                                    <td>{{ plane.name }}</td>
+                                                    <td>{{ plane.plane_type_id }}</td>
+                                                    <td>${{ plane.price/1000000 }}M</td>
+                                                    <td>{{ plane.passengers }}</td>
+                                                    <td>{{ plane.cargo }}</td>
+                                                    <td><a href="/buy_{{ plane.id }}"><button class="btn btn-xs btn-danger" type="button">BUY</button></a></td>
                                                 </tr>
+                                                {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
-                                <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Search for...">
-                                    <span class="input-group-btn">
-                                        <button class="btn btn-default" type="button">GET CREDIT</button>
-                                    </span>
-                                </div>
+
+                                <form method="POST" action="/credit">
+                                    <div class="input-group">
+                                        <input name="credit" type="text" class="form-control" placeholder="Input CREDIT in $">
+                                        <span class="input-group-btn">
+                                            <button class="btn btn-danger" type="submit">GET CREDIT</button>
+                                        </span>
+                                    </div>
+                                </form>
+
                             </div>
                         </div>
                     </div>
@@ -125,17 +141,17 @@
             <div class="col-sm-4">
                 <div class="panel panel-info">
                     <div class="panel-heading">
-                        <h3 class="panel-title">DISPATCHER</h3>
+                        <h3 class="panel-title">DISPATCHER -- {{ dispatcher_name }}</h3>
                     </div>
                     <div class="panel-body">
-                        <form>
+                        <form action="/flight" method="POST">
                             <div class="form-group">
                                 <div class="row">
                                     <div class="col-sm-6">
                                         COUNT PASSENGERS WHO WANTS
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" class="form-control" placeholder="PERSONS">
+                                        <input type="text" class="form-control" name="passengers" placeholder="PERSONS">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -143,11 +159,11 @@
                                         TONS CARGO NEED
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" class="form-control" placeholder="TONS">
+                                        <input type="text" class="form-control" name="cargo" placeholder="TONS">
                                     </div>
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-default form-control">FLIGHT</button>
+                            <button type="submit" class="btn btn-info form-control">FLIGHT</button>
                         </form>
                         <br><br>
 
@@ -165,13 +181,15 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            {% for flight in flights %}
                                             <tr>
-                                                <td>123-1234</td>
-                                                <td>Boeing 747</td>
-                                                <td>0</td>
-                                                <td>500</td>
-                                                <td>05.03.2018</td>
+                                                <td>{{ flight.plane_id }}</td>
+                                                <td>{{ flight.plane_name }}</td>
+                                                <td>{{ flight.passengers }}</td>
+                                                <td>{{ flight.cargo }}</td>
+                                                <td>{{ strftime(flight.date_time) }}</td>
                                             </tr>
+                                            {% endfor %}
                                         </tbody>
                                     </table>
                                 </div>

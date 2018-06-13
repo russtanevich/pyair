@@ -4,6 +4,17 @@ from settings import TABLES, FILLINGS, STATE
 from dbquery import DB
 
 
+def delete_tables():
+    queries = ("DELETE FROM {}".format(key) for key in TABLES)
+    DB.queries(queries)
+
+
+def main():
+    build_tables(tables=TABLES)
+    fill_tables(fillings=FILLINGS)
+    fill_tables(fillings=STATE)
+
+
 def _gen_fill_queries(fillings):
     for table in fillings:
         for raw in fillings[table]:
@@ -29,11 +40,7 @@ def fill_tables(fillings):
 
 
 if __name__ == "__main__":
-    DB_FILE = "airbase.db"
-    build_tables(tables=TABLES)
-    fill_tables(fillings=FILLINGS)
-    fill_tables(fillings=STATE)
-
+    main()
 
 
 
