@@ -31,7 +31,7 @@ class Operator(object):
     GET_DISPATCHER_QUERY = "SELECT name FROM staff WHERE position='dispatcher' AND airline_id={id} LIMIT 1;"
     NOTIFICATIONS_QUERY = "SELECT id, text, date_time FROM notifications WHERE airline_id={airline_id} ORDER BY date_time DESC LIMIT 5"
     OWN_PLANE_PRICE_QUERY = "SELECT price FROM planes WHERE id=(SELECT plane_id FROM airlines_planes WHERE id ={id})"
-    OWN_PLANES_QUERY = "SELECT ap.id, p.name, p.plane_type_id, p.price, p.passengers, p.cargo FROM airlines_planes AS ap LEFT JOIN planes AS p ON ap.plane_id=p.id WHERE ap.airline_id={id}"
+    OWN_PLANES_QUERY = "SELECT ap.id, p.name, p.plane_type_id, p.price, p.passengers, p.cargo, (SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id ) FROM airlines_planes ap, planes p WHERE ap.plane_id=p.id AND ap.airline_id={id}"
     OWN_PLANES_TYPE_QUERY = OWN_PLANES_QUERY + " AND p.plane_type_id={plane_type_id}"
     OWN_COUNT_PLANES_QUERY = "SELECT COUNT(*) FROM airlines_planes ap LEFT JOIN planes p ON ap.plane_id=p.id WHERE plane_type_id={plane_type_id} AND airline_id={id}"
     OWN_DISP_PLANES_QUERY = "SELECT ap.id, p.passengers, p.cargo FROM airlines_planes AS ap LEFT JOIN planes AS p ON ap.plane_id=p.id AND ap.airline_id={id}"
@@ -43,7 +43,7 @@ class Operator(object):
 
     @property
     def planes(self):
-        keys = ("id", "name", "plane_type_id", "price", "passengers", "cargo")
+        keys = ("id", "name", "plane_type_id", "price", "passengers", "cargo", "flights")
         query_result = DB.query(self.OWN_PLANES_QUERY.format(id=self.airline_id))
         result = list(dict(zip(keys, row)) for row in query_result)
         return result

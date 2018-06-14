@@ -16,6 +16,10 @@ def check_mode():
 
 def manager_mode():
     man = operators.Manager()
+    # doings = {
+    #     "buy plane": man.buy,
+    #     "sell plane":
+    # }
     while True:
         print("MANAGER MODE")
         raw_input("M")

@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect
 import operators
 import datetime
 import dbmake
+import utils
 
 
 app = Flask(__name__)
@@ -29,7 +30,9 @@ def home_page():
 
         "dispatcher_name": disp.name,
         "flights": disp.flights,
-        "strftime": datetime.datetime.utcfromtimestamp
+
+        "date_filter": utils.date_filter,
+        "can_buy_plane": man.can_buy_plane
     }
     return render_template('index.html', **context)
 
