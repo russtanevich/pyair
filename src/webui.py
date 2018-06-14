@@ -21,14 +21,6 @@ def home_page():
         "balance": man.balance,
         "manager_name": man.name,
 
-        # "count_passenger_planes": man.count_passenger_planes,
-        # "passengers_capacity": man.passengers_capacity,
-        # "passenger_flights": man.passenger_flights,
-        #
-        # "count_cargo_planes": man.count_cargo_planes,
-        # "cargo_capacity": man.cargo_capacity,
-        # "cargo_flights": man.cargo_flights,
-
         "planes_stat": man.planes_stat,
         "transactions": man.transactions,
         "notifications": man.notifications,
@@ -74,6 +66,6 @@ def buy(plane_id):
 def credit():
     if request.method == "POST":
         credit = float(request.values["credit"])
-        man._get_money(credit)
+        man._get_money(credit, "GET CREDIT")
     return redirect("/")
 

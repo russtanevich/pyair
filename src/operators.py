@@ -15,32 +15,66 @@ class Operator(object):
     PASSENGER_PAYMENT = settings.PASSENGER_PAYMENT
     CARGO_TON_PAYMENT = settings.CARGO_TON_PAYMENT
 
-    ADD_FLIGHT_QUERY = "INSERT INTO flights (plane_id, date_time, passengers, cargo) values ({plane_id}, {date_time}, {passengers}, {cargo})"
-    ADD_NOTIFICATION = "INSERT INTO notifications (airline_id, text, date_time) values ({airline_id}, '{text}', {date_time})"
-    ADD_PLANE_QUERY = "INSERT INTO airlines_planes (airline_id, plane_id) values ({airline_id},{plane_id})"
-    ADD_TRANSACTION = "INSERT INTO transactions (value, description, date_time, airline_id) values({value}, '{description}', {date_time}, {airline_id})"
+    ADD_FLIGHT_QUERY = "INSERT INTO flights (plane_id, date_time, passengers, cargo) " \
+                       "values ({plane_id}, {date_time}, {passengers}, {cargo})"
+
+    ADD_NOTIFICATION = "INSERT INTO notifications (airline_id, text, date_time) " \
+                       "values ({airline_id}, '{text}', {date_time})"
+
+    ADD_PLANE_QUERY = "INSERT INTO airlines_planes (airline_id, plane_id) " \
+                      "values ({airline_id},{plane_id})"
+
+    ADD_TRANSACTION = "INSERT INTO transactions (value, description, date_time, airline_id) " \
+                      "values({value}, '{description}', {date_time}, {airline_id})"
+
     BALANCE_QUERY = "SELECT balance FROM airlines WHERE id={id}"
-    CAPACITY_PASSENGERS_QUERY = "SELECT SUM(passengers) FROM airlines_planes AS ap LEFT JOIN planes AS p ON ap.plane_id=p.id WHERE ap.airline_id={id}"
-    CAPACITY_CARGO_QUERY = "SELECT SUM(cargo) FROM airlines_planes AS ap LEFT JOIN planes AS p ON ap.plane_id=p.id WHERE ap.airline_id={id}"
-    COMMON_PLANE_PRICE_QUERY = "SELECT price FROM planes WHERE id={id}"
-    COMMON_PLANES_QUERY = "SELECT id, name, plane_type_id, price, passengers, cargo FROM planes"
-    COMMON_AVAILABLE_PLANES_QUERY = "SELECT * FROM planes AS p WHERE p.price < (SELECT balance FROM airlines AS a WHERE a.id={id})"
+
+    MARKET_PLANE_PRICE_QUERY = "SELECT price FROM planes WHERE id={plane_id}"
+
+    MARKET_PLANES_QUERY = "SELECT p.id, p.name, pt.name AS type, price, passengers, cargo " \
+                          "FROM planes p, plane_types pt " \
+                          "WHERE pt.id=p.plane_type_id"
+
+    MARKET_AVAILABLE_PLANES_QUERY = "SELECT * FROM planes AS p " \
+                                    "WHERE p.price < (SELECT balance FROM airlines AS a WHERE a.id={airline_id})"
+
     DELETE_PLANE_QUERY = "DELETE FROM airlines_planes WHERE id={id}"
-    FLIGHTS_QUERY = "SELECT f.plane_id, p.name, f.passengers, f.cargo, f.date_time FROM flights f, planes p, airlines_planes ap WHERE f.plane_id=ap.id AND ap.plane_id=p.id ORDER BY date_time DESC LIMIT 16"
-    FLIGHT_TIMES = "SELECT COUNT(*) FROM flights f, airlines_planes ap, planes p WHERE f.plane_id=ap.id AND  ap.plane_id=p.id AND p.plane_type_id={plane_type_id} AND ap.airline_id={airline_id}"
+
+    FLIGHTS_QUERY = "SELECT f.id AS id, f.plane_id AS plane_id, p.name AS plane_name, f.passengers AS passengers, f.cargo AS cargo, f.date_time AS date_time " \
+                    "FROM flights f, planes p, airlines_planes ap " \
+                    "WHERE f.plane_id=ap.id AND ap.plane_id=p.id AND ap.airline_id={airline_id} " \
+                    "ORDER BY date_time DESC LIMIT 16"
+
     GET_MANAGER_QUERY = "SELECT name FROM staff WHERE position='manager' AND airline_id={id} LIMIT 1;"
     GET_DISPATCHER_QUERY = "SELECT name FROM staff WHERE position='dispatcher' AND airline_id={id} LIMIT 1;"
-    NOTIFICATIONS_QUERY = "SELECT id, text, date_time FROM notifications WHERE airline_id={airline_id} ORDER BY date_time DESC LIMIT 5"
-    OWN_PLANE_PRICE_QUERY = "SELECT price FROM planes WHERE id=(SELECT plane_id FROM airlines_planes WHERE id ={id})"
-    OWN_PLANES_QUERY = "SELECT ap.id, p.name, p.plane_type_id, p.price, p.passengers, p.cargo, (SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id ) FROM airlines_planes ap, planes p WHERE ap.plane_id=p.id AND ap.airline_id={id}"
-    OWN_PLANES_TYPE_QUERY = OWN_PLANES_QUERY + " AND p.plane_type_id={plane_type_id}"
 
-    OWN_PLANE_STAT_QUERY = "SELECT pt.name, COUNT(*), SUM(p.passengers), SUM(p.cargo), SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)), SUM(p.price) FROM planes p, airlines_planes ap, plane_types pt WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id={id} GROUP BY p.plane_type_id"
-    OWN_COUNT_PLANES_QUERY = "SELECT COUNT(*) FROM airlines_planes ap LEFT JOIN planes p ON ap.plane_id=p.id WHERE plane_type_id={plane_type_id} AND airline_id={id}"
-    OWN_DISP_PLANES_QUERY = "SELECT ap.id, p.passengers, p.cargo FROM airlines_planes AS ap LEFT JOIN planes AS p ON ap.plane_id=p.id AND ap.airline_id={id}"
-    TRANSACTIONS_QUERY = "SELECT id, value, description, date_time from transactions WHERE airline_id={airline_id} ORDER BY date_time DESC LIMIT 5"
-    UPDATE_BALANCE_QUERY = "UPDATE airlines SET balance={balance} WHERE id={id}"
+    NOTIFICATIONS_QUERY = "SELECT id, text, date_time " \
+                          "FROM notifications " \
+                          "WHERE airline_id={airline_id} " \
+                          "ORDER BY date_time DESC LIMIT 5"
 
+    OWN_PLANE_PRICE_QUERY = "SELECT price FROM planes " \
+                            "WHERE id=(SELECT plane_id FROM airlines_planes WHERE id ={id})"
+
+    OWN_PLANES_QUERY = "SELECT ap.id, p.name, pt.name AS type, p.price, p.passengers, p.cargo, " \
+                       "(SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id) AS flights " \
+                       "FROM airlines_planes ap, planes p, plane_types pt " \
+                       "WHERE ap.plane_id=p.id AND pt.id = p.plane_type_id AND ap.airline_id={airline_id}"
+
+    OWN_PLANES_TYPE_QUERY = OWN_PLANES_QUERY + " AND pt.name='{pt_name}'"
+
+    OWN_PLANES_STAT_QUERY = "SELECT pt.name AS plane_type, COUNT(*) AS planes, SUM(p.passengers) AS passengers, SUM(p.cargo) AS cargo, " \
+                            "SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)) AS flights, SUM(p.price) AS price " \
+                            "FROM planes p, airlines_planes ap, plane_types pt " \
+                            "WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id={airline_id} " \
+                            "GROUP BY p.plane_type_id"
+
+    TRANSACTIONS_QUERY = "SELECT id, value, description, date_time " \
+                         "FROM transactions " \
+                         "WHERE airline_id={airline_id} " \
+                         "ORDER BY date_time DESC LIMIT 5"
+
+    UPDATE_BALANCE_QUERY = "UPDATE airlines SET balance={balance} WHERE id={airline_id}"
 
     @property
     def balance(self):
@@ -48,51 +82,27 @@ class Operator(object):
 
     @property
     def planes(self):
-        keys = ("id", "name", "plane_type_id", "price", "passengers", "cargo", "flights")
-        query_result = DB.query(self.OWN_PLANES_QUERY.format(id=self.airline_id))
-        result = list(dict(zip(keys, row)) for row in query_result)
-        return result
-
-    def _type_planes(self, plane_type_id):
-        keys = ("id", "name", "plane_type_id", "price", "passengers", "cargo")
-        query_result = DB.query(self.OWN_PLANES_TYPE_QUERY.format(id=self.airline_id, plane_type_id=plane_type_id))
-        result = list(dict(zip(keys, row)) for row in query_result)
-        return result
-
-    @property
-    def planes_stat(self):
-        keys = ("plane_type", "planes", "passengers", "cargo", "flights", "price")
-        query_result = DB.query(self.OWN_PLANE_STAT_QUERY.format(id=self.airline_id))
-        result = list(dict(zip(keys, row)) for row in query_result)
-        return result
+        return DB.query_mod(self.OWN_PLANES_QUERY.format(airline_id=self.airline_id))
 
     @property
     def passenger_planes(self):
-        return self._type_planes(plane_type_id=1)
+        return DB.query_mod(self.OWN_PLANES_TYPE_QUERY.format(airline_id=self.airline_id, pt_name="passenger"))
 
     @property
     def cargo_planes(self):
-        return self._type_planes(plane_type_id=2)
+        return DB.query_mod(self.OWN_PLANES_TYPE_QUERY.format(airline_id=self.airline_id, pt_name="cargo"))
 
     @property
-    def passengers_capacity(self):
-        return DB.query(self.CAPACITY_PASSENGERS_QUERY.format(id=self.airline_id))[0][0]
+    def market_planes(self):
+        return DB.query_mod(self.MARKET_PLANES_QUERY)
 
     @property
-    def cargo_capacity(self):
-        return DB.query(self.CAPACITY_CARGO_QUERY.format(id=self.airline_id))[0][0]
-
-    @property
-    def passenger_flights(self):
-        return DB.query(self.FLIGHT_TIMES.format(airline_id=self.airline_id, plane_type_id=1))[0][0]
-
-    @property
-    def cargo_flights(self):
-        return DB.query(self.FLIGHT_TIMES.format(airline_id=self.airline_id, plane_type_id=2))[0][0]
+    def planes_stat(self):
+        return DB.query_mod(self.OWN_PLANES_STAT_QUERY.format(airline_id=self.airline_id))
 
     def _get_money(self, payment, description=""):
         new_balance = self.balance + payment
-        DB.query(self.UPDATE_BALANCE_QUERY.format(balance=new_balance, id=self.airline_id))
+        DB.query(self.UPDATE_BALANCE_QUERY.format(balance=new_balance, airline_id=self.airline_id))
         DB.query(self.ADD_TRANSACTION.format(value=payment, description=description, date_time=time.time(), airline_id=self.airline_id))
 
 
@@ -100,46 +110,21 @@ class Manager(Operator):
     """Manager class"""
     def __init__(self):
         self.name = DB.query(self.GET_MANAGER_QUERY.format(id=settings.AIR_LINES))[0][0]
-        self._notifications = []
 
     @property
     def transactions(self):
-        keys = ("id", "value", "description", "date_time")
-        query_result = DB.query(self.TRANSACTIONS_QUERY.format(airline_id=self.airline_id))
-        result = list(dict(zip(keys, row)) for row in query_result)
-        return result
+        return DB.query_mod(self.TRANSACTIONS_QUERY.format(airline_id=self.airline_id))
 
     @property
     def notifications(self):
-        keys = ("id", "text", "date_time")
-        query_result =  DB.query(self.NOTIFICATIONS_QUERY.format(airline_id=self.airline_id))
-        result = list(dict(zip(keys, row)) for row in query_result)
-        return result
-
-    def clear_notifications(self):
-        self._notifications = []
-
-    @property
-    def market_planes(self):
-        keys = ("id", "name", "plane_type_id", "price", "passengers", "cargo")
-        query_result = DB.query(self.COMMON_PLANES_QUERY)
-        result = list(dict(zip(keys, row)) for row in query_result)
-        return result
+        return DB.query_mod(self.NOTIFICATIONS_QUERY.format(airline_id=self.airline_id))
 
     @property
     def market_available_planes(self):
-        return DB.query(self.COMMON_AVAILABLE_PLANES_QUERY.format(id=self.airline_id))
-
-    @property
-    def count_passenger_planes(self):
-        return DB.query(self.OWN_COUNT_PLANES_QUERY.format(id=self.airline_id, plane_type_id=1))[0][0]
-
-    @property
-    def count_cargo_planes(self):
-        return DB.query(self.OWN_COUNT_PLANES_QUERY.format(id=self.airline_id, plane_type_id=2))[0][0]
+        return DB.query_mod(self.MARKET_AVAILABLE_PLANES_QUERY.format(airline_id=self.airline_id))
 
     def price_market_plane(self, plane_id):
-        return DB.query(self.COMMON_PLANE_PRICE_QUERY.format(id=plane_id))[0][0]
+        return DB.query(self.MARKET_PLANE_PRICE_QUERY.format(plane_id=plane_id))[0][0]
 
     def price_own_plane(self, plane_id):
         return DB.query(self.OWN_PLANE_PRICE_QUERY.format(id=plane_id))[0][0]
@@ -155,7 +140,7 @@ class Manager(Operator):
 
     def _pay_money(self, payment, description=""):
         new_balance = self.balance - payment
-        DB.query(self.UPDATE_BALANCE_QUERY.format(balance=new_balance, id=self.airline_id))
+        DB.query(self.UPDATE_BALANCE_QUERY.format(balance=new_balance, airline_id=self.airline_id))
         DB.query(self.ADD_TRANSACTION.format(value=-payment, description=description, date_time=time.time(), airline_id=self.airline_id))
 
     def buy_plane(self, plane_id):
@@ -180,35 +165,33 @@ class Dispatcher(Operator):
 
     @property
     def flights(self):
-        keys = ("plane_id", "plane_name", "passengers", "cargo", "date_time")
-        query_result = DB.query(self.FLIGHTS_QUERY)
-        result = list(dict(zip(keys, row)) for row in query_result)
-        return result
+        return DB.query_mod(self.FLIGHTS_QUERY.format(airline_id=self.airline_id))
 
     def _add_flight(self, plane_id, date_time, passengers, cargo):
         DB.query(self.ADD_FLIGHT_QUERY.format(plane_id=plane_id, date_time=date_time, passengers=passengers, cargo=cargo))
         payment = self.PASSENGER_PAYMENT * passengers + self.CARGO_TON_PAYMENT * cargo
-        self._get_money(payment, "flight of plane #{}".format(plane_id))
+        self._get_money(payment, "flight of plane # {}".format(plane_id))
 
     def flight(self, all_passengers, all_cargo):
         left_passengers = all_passengers
         left_cargo = all_cargo
-        for plane in self.passenger_planes:
+        for plane in self.passenger_planes["data"]:
+            if left_passengers <= 0:
+                break
             plane_id, passengers = plane["id"], plane["passengers"]
             placed_passengers = passengers if passengers <= left_passengers else left_passengers
             self._add_flight(plane_id=plane_id, date_time=time.time(), passengers=placed_passengers, cargo=0)
             left_passengers -= placed_passengers
-            if left_passengers <= 0:
+        for plane in self.cargo_planes["data"]:
+            if left_cargo <= 0:
                 break
-        for plane in self.cargo_planes:
             plane_id, cargo = plane["id"], plane["cargo"]
             placed_cargo = cargo if cargo <= left_cargo else left_cargo
             self._add_flight(plane_id=plane_id, date_time=time.time(), passengers=0, cargo=placed_cargo)
             left_cargo -= placed_cargo
-            if left_cargo <= 0:
-                break
+
         if left_passengers or left_cargo:
-            notification = "LEFT: {} passengers and {} ton cargo".format(left_passengers, left_cargo)
+            notification = "LEFT: {} passengers and {} tons cargo".format(left_passengers, left_cargo)
             self.push_notification(notification)
 
     def push_notification(self, notification):

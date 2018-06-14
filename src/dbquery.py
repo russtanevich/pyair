@@ -19,6 +19,19 @@ class DB(object):
         return result
 
     @classmethod
+    def query_mod(cls, query):
+        conn = sqlite3.connect(cls.db_file)
+        cur = conn.cursor()
+        print(query)
+        response = cur.execute(query)
+        header = tuple(arr[0] for arr in response.description)
+        data = response.fetchall()
+        conn.commit()
+        conn.close()
+        return {"header": header,
+                "data": tuple({ key: val for key, val in zip(header, row)} for row in data )}
+
+    @classmethod
     def queries(cls, queries):
         conn = sqlite3.connect(cls.db_file)
         cur = conn.cursor()

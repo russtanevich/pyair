@@ -1,5 +1,6 @@
 import operators
 import argparse
+import sqlite3
 
 
 def check_mode():
@@ -16,13 +17,26 @@ def check_mode():
 
 def manager_mode():
     man = operators.Manager()
-    # doings = {
-    #     "buy plane": man.buy,
-    #     "sell plane":
-    # }
     while True:
-        print("MANAGER MODE")
-        raw_input("M")
+        choices = {
+            "1": "planes",
+            "2": "planes_stat",
+            "3": "buy_plane"
+        }
+        # print(choices)
+        choice = raw_input("MANAGER MODE >> ")
+
+        conn = sqlite3.connect("airbase.db")
+        cur = conn.cursor()
+        query = "SELECT * FROM flights;"
+        response = cur.execute(query)
+        header = tuple(arr[0] for arr in response.description)
+        result = response.fetchall()
+        result.insert(0, header)
+        conn.commit()
+        conn.close()
+        for row in result:
+            print "|".join("{:>16}".format(str(_)) for _ in row)
 
 
 def dispatcher_mode():

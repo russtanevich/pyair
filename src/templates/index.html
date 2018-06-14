@@ -50,18 +50,18 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            {% for plane in own_planes %}
+                                                {% for plane in own_planes.data %}
                                                 <tr>
                                                     <td>{{ plane.id }}</td>
                                                     <td>{{ plane.name }}</td>
-                                                    <td>{{ plane.plane_type_id }}</td>
+                                                    <td>{{ plane.type }}</td>
                                                     <td>${{ plane.price/1000000 }}M</td>
                                                     <td>{{ plane.passengers }}</td>
                                                     <td>{{ plane.cargo }}</td>
                                                     <td>{{ plane.flights }}</td>
                                                     <td><a href="/sell_{{ plane.id }}"><button class="btn btn-xs btn-success" type="button">SELL</button></a></td>
                                                 </tr>
-                                            {% endfor %}
+                                                {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
@@ -70,7 +70,7 @@
                             <div class="col-sm-5">
                                 <div class="row">
 
-                                    {% for plane in planes_stat %}
+                                    {% for plane in planes_stat.data %}
                                     <div class="col-sm-6">
                                         <h4>{{ plane.plane_type }} plane type</h4>
                                         <div class="list-group">
@@ -86,7 +86,7 @@
                                 <div class="panel panel-danger">
                                     <div class="panel-heading">NOTIFICATIONS</div>
                                     <ul class="list-group">
-                                        {% for note in notifications %}
+                                        {% for note in notifications.data %}
                                         <li class="list-group-item">{{ date_filter(note.date_time) }} -- {{ note.text }}</li>
                                         {% endfor %}
                                     </ul>
@@ -96,7 +96,7 @@
                                     <div class="table-responsive">
                                         <table class="table table-striped">
                                             <tbody>
-                                                {% for transaction in transactions %}
+                                                {% for transaction in transactions.data %}
                                                 <tr>
                                                     <td>{{ transaction.id }}</td>
                                                     <td>{{ date_filter(transaction.date_time) }}</td>
@@ -123,10 +123,10 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {% for plane in market_planes %}
+                                                    {% for plane in market_planes.data %}
                                                     <tr>
                                                         <td>{{ plane.name }}</td>
-                                                        <td>{{ plane.plane_type_id }}</td>
+                                                        <td>{{ plane.type }}</td>
                                                         <td>${{ plane.price/1000000 }}M</td>
                                                         <td>{{ plane.passengers }}</td>
                                                         <td>{{ plane.cargo }}</td>
@@ -193,7 +193,8 @@
                                     <table class="table table-striped">
                                         <thead>
                                             <tr>
-                                                <th>ID PLANE</th>
+                                                <th>ID</th>
+                                                <th>PLANE ID</th>
                                                 <th>NAME</th>
                                                 <th>SEATS</th>
                                                 <th>CARGO</th>
@@ -201,8 +202,9 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            {% for flight in flights %}
+                                            {% for flight in flights.data %}
                                             <tr>
+                                                <td>{{ flight.id }}</td>
                                                 <td>{{ flight.plane_id }}</td>
                                                 <td>{{ flight.plane_name }}</td>
                                                 <td>{{ flight.passengers }}</td>
