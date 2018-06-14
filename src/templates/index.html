@@ -69,22 +69,19 @@
                             </div>
                             <div class="col-sm-5">
                                 <div class="row">
+
+                                    {% for plane in planes_stat %}
                                     <div class="col-sm-6">
-                                        <h4>Passenger planes</h4>
+                                        <h4>{{ plane.plane_type }} plane type</h4>
                                         <div class="list-group">
-                                            <a href="#" class="list-group-item list-group-item-success"><b>{{ count_passenger_planes }}</b> PLANES</a>
-                                            <a href="#" class="list-group-item list-group-item-warning"><b>{{ passengers_capacity }}</b> SEATS</a>
-                                            <a href="#" class="list-group-item list-group-item-danger"><b>{{ passenger_flights }}</b> FLIGHTS</a>
+                                            <a href="#" class="list-group-item list-group-item-success"><b>{{ plane.planes }}</b> PLANES</a>
+                                            <a href="#" class="list-group-item list-group-item-warning"><b>{{ plane.passengers }}</b> SEATS</a>
+                                            <a href="#" class="list-group-item list-group-item-info"><b>{{ plane.cargo }}</b> TONS</a>
+                                            <a href="#" class="list-group-item list-group-item-danger"><b>{{ plane.flights }}</b> FLIGHTS</a>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <h4>Cargo planes</h4>
-                                        <div class="list-group">
-                                            <a href="#" class="list-group-item list-group-item-success"><b>{{ count_cargo_planes }}</b> PLANES</a>
-                                            <a href="#" class="list-group-item list-group-item-warning"><b>{{ cargo_capacity }}</b> TONS</a>
-                                            <a href="#" class="list-group-item list-group-item-danger"><b>{{ cargo_flights }}</b> FLIGHTS</a>
-                                        </div>
-                                    </div>
+                                    {% endfor %}
+
                                 </div>
                                 <div class="panel panel-danger">
                                     <div class="panel-heading">NOTIFICATIONS</div>

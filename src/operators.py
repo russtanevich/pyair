@@ -33,6 +33,8 @@ class Operator(object):
     OWN_PLANE_PRICE_QUERY = "SELECT price FROM planes WHERE id=(SELECT plane_id FROM airlines_planes WHERE id ={id})"
     OWN_PLANES_QUERY = "SELECT ap.id, p.name, p.plane_type_id, p.price, p.passengers, p.cargo, (SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id ) FROM airlines_planes ap, planes p WHERE ap.plane_id=p.id AND ap.airline_id={id}"
     OWN_PLANES_TYPE_QUERY = OWN_PLANES_QUERY + " AND p.plane_type_id={plane_type_id}"
+
+    OWN_PLANE_STAT_QUERY = "SELECT pt.name, COUNT(*), SUM(p.passengers), SUM(p.cargo), SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)), SUM(p.price) FROM planes p, airlines_planes ap, plane_types pt WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id={id} GROUP BY p.plane_type_id"
     OWN_COUNT_PLANES_QUERY = "SELECT COUNT(*) FROM airlines_planes ap LEFT JOIN planes p ON ap.plane_id=p.id WHERE plane_type_id={plane_type_id} AND airline_id={id}"
     OWN_DISP_PLANES_QUERY = "SELECT ap.id, p.passengers, p.cargo FROM airlines_planes AS ap LEFT JOIN planes AS p ON ap.plane_id=p.id AND ap.airline_id={id}"
     UPDATE_BALANCE_QUERY = "UPDATE airlines SET balance={balance} WHERE id={id}"
@@ -55,14 +57,19 @@ class Operator(object):
         return result
 
     @property
+    def planes_stat(self):
+        keys = ("plane_type", "planes", "passengers", "cargo", "flights", "price")
+        query_result = DB.query(self.OWN_PLANE_STAT_QUERY.format(id=self.airline_id))
+        result = list(dict(zip(keys, row)) for row in query_result)
+        return result
+
+
+    @property
     def passenger_planes(self):
-        print("AAAAAAAAA", self._type_planes(plane_type_id=1))
         return self._type_planes(plane_type_id=1)
 
     @property
     def cargo_planes(self):
-
-        print("BBBBBBBBBBB", self._type_planes(plane_type_id=2))
         return self._type_planes(plane_type_id=2)
 
     @property
@@ -128,7 +135,7 @@ class Manager(Operator):
         return DB.query(self.OWN_PLANE_PRICE_QUERY.format(id=plane_id))[0][0]
 
     def can_buy_plane(self, plane_id):
-        return self.balance > self.price_market_plane(plane_id)
+        return self.balance >= self.price_market_plane(plane_id)
 
     def _del_plane(self, plane_id):
         DB.query(self.DELETE_PLANE_QUERY.format(id=plane_id))

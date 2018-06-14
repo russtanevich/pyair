@@ -10,6 +10,9 @@ man = operators.Manager()
 disp = operators.Dispatcher()
 
 
+print man.planes_stat
+
+
 @app.route("/")
 def home_page():
     context = {
@@ -18,13 +21,15 @@ def home_page():
         "balance": man.balance,
         "manager_name": man.name,
 
-        "count_passenger_planes": man.count_passenger_planes,
-        "passengers_capacity": man.passengers_capacity,
-        "passenger_flights": man.passenger_flights,
+        # "count_passenger_planes": man.count_passenger_planes,
+        # "passengers_capacity": man.passengers_capacity,
+        # "passenger_flights": man.passenger_flights,
+        #
+        # "count_cargo_planes": man.count_cargo_planes,
+        # "cargo_capacity": man.cargo_capacity,
+        # "cargo_flights": man.cargo_flights,
 
-        "count_cargo_planes": man.count_cargo_planes,
-        "cargo_capacity": man.cargo_capacity,
-        "cargo_flights": man.cargo_flights,
+        "planes_stat": man.planes_stat,
 
         "notifications": man.notifications,
 
