@@ -1,6 +1,8 @@
 import operators
 import argparse
 import sqlite3
+from utils import date_filter
+from dbquery import DB
 
 
 def check_mode():
@@ -15,6 +17,17 @@ def check_mode():
     return args
 
 
+def draw_table(query):
+    response = DB.query_mod(query)
+    print "|".join(
+        (
+            "{:>16}".format(str(col)) for col in response["header"])
+    )
+    for row in response["data"]:
+        print "|".join(("{:>16}".format(str(row[col])) for col in response["header"]))
+
+
+
 def manager_mode():
     man = operators.Manager()
     while True:
@@ -26,17 +39,8 @@ def manager_mode():
         # print(choices)
         choice = raw_input("MANAGER MODE >> ")
 
-        conn = sqlite3.connect("airbase.db")
-        cur = conn.cursor()
-        query = "SELECT * FROM flights;"
-        response = cur.execute(query)
-        header = tuple(arr[0] for arr in response.description)
-        result = response.fetchall()
-        result.insert(0, header)
-        conn.commit()
-        conn.close()
-        for row in result:
-            print "|".join("{:>16}".format(str(_)) for _ in row)
+        draw_table("SELECT id, TIME(date_time) FROM flights")
+
 
 
 def dispatcher_mode():
