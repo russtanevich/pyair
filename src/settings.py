@@ -63,6 +63,15 @@ TABLES = {
         date_time INTEGER,
         FOREIGN KEY(airline_id) REFERENCES airlines(id)
     );""",
+  "transactions": """
+    CREATE TABLE IF NOT EXISTS transactions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        value INTEGER,
+        description TEXT,
+        date_time INTEGER,
+        airline_id INTEGER,
+        FOREIGN KEY(airline_id) REFERENCES airlines(id)
+    );""",
 }
 ###############################################
 

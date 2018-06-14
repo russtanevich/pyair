@@ -91,41 +91,58 @@
                                         {% endfor %}
                                     </ul>
                                 </div>
-                                <div class="panel panel-success">
-                                    <div class="panel-heading">MARKET PLANES</div>
+                                <div class="panel panel-info">
+                                    <div class="panel-heading">LATEST TRANSACTIONS</div>
                                     <div class="table-responsive">
                                         <table class="table table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>NAME</th>
-                                                    <th>TYPE</th>
-                                                    <th>PRICE</th>
-                                                    <th>SEATS</th>
-                                                    <th>CARGO</th>
-                                                    <th>BUY</th>
-                                                </tr>
-                                            </thead>
                                             <tbody>
-                                                {% for plane in market_planes %}
+                                                {% for transaction in transactions %}
                                                 <tr>
-                                                    <td>{{ plane.name }}</td>
-                                                    <td>{{ plane.plane_type_id }}</td>
-                                                    <td>${{ plane.price/1000000 }}M</td>
-                                                    <td>{{ plane.passengers }}</td>
-                                                    <td>{{ plane.cargo }}</td>
-                                                    <td>
-                                                        {% if can_buy_plane(plane.id) %}
-                                                        <a href="/buy_{{ plane.id }}"><button class="btn btn-xs btn-success" type="button">BUY NOW</button></a>
-                                                        {% else %}
-                                                            <button class="btn btn-xs btn-danger" type="button">NO CASH</button>
-                                                        {% endif %}
-                                                    </td>
+                                                    <td>{{ transaction.id }}</td>
+                                                    <td>{{ date_filter(transaction.date_time) }}</td>
+                                                    <td>{{ transaction.value / 1000 }}k$</td>
+                                                    <td>{{ transaction.description }}</td>
                                                 </tr>
                                                 {% endfor %}
                                             </tbody>
                                         </table>
                                     </div>
                                 </div>
+                                <div class="panel panel-success">
+                                    <div class="panel-heading">MARKET PLANES</div>
+                                        <div class="table-responsive">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>NAME</th>
+                                                        <th>TYPE</th>
+                                                        <th>PRICE</th>
+                                                        <th>SEATS</th>
+                                                        <th>CARGO</th>
+                                                        <th>BUY</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {% for plane in market_planes %}
+                                                    <tr>
+                                                        <td>{{ plane.name }}</td>
+                                                        <td>{{ plane.plane_type_id }}</td>
+                                                        <td>${{ plane.price/1000000 }}M</td>
+                                                        <td>{{ plane.passengers }}</td>
+                                                        <td>{{ plane.cargo }}</td>
+                                                        <td>
+                                                            {% if can_buy_plane(plane.id) %}
+                                                            <a href="/buy_{{ plane.id }}"><button class="btn btn-xs btn-success" type="button">BUY NOW</button></a>
+                                                            {% else %}
+                                                                <button class="btn btn-xs btn-danger" type="button">NO CASH</button>
+                                                            {% endif %}
+                                                        </td>
+                                                    </tr>
+                                                    {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
 
                                 <form method="POST" action="/credit">
                                     <div class="input-group">
