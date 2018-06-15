@@ -15,14 +15,11 @@ def home_page():
         "market_planes": man.market_planes,
         "balance": man.balance,
         "manager_name": man.name,
-
         "planes_stat": man.planes_stat,
         "transactions": man.transactions,
         "notifications": man.notifications,
-
         "dispatcher_name": disp.name,
         "flights": disp.flights,
-
         "date_filter": utils.date_filter,
         "can_buy_plane": man.can_buy_plane
     }
