@@ -1,59 +1,45 @@
 import operators
 import argparse
-import sqlite3
-from utils import date_filter
-from dbquery import DB
+import settings
+from utils import draw_choices, sort_result
 
 
 def check_mode():
-    parser = argparse.ArgumentParser()
+    """CHECK COMMAND LINE ARGUMENTS"""
+    parser = argparse.ArgumentParser(description="FLIGHT MANAGEMENT APPLICATION")
     parser.add_argument("-d", "--dispatcher", help="run in DISPATCHER MODE", action="store_true")
     parser.add_argument("-m", "--manager", help="run in MANAGER MODE", action="store_true")
     args = parser.parse_args()
-    if args.manager and args.dispatcher:
-        raise ValueError("SPECIFY only ONE MODE: -d or -m")
     if not (args.manager or args.dispatcher):
-        raise ValueError("SPECIFY -d or -m MODE")
+        parser.print_help()
+        exit(1)
     return args
 
 
-def draw_table(query):
-    response = DB.query_mod(query)
-    print "|".join(
-        (
-            "{:>16}".format(str(col)) for col in response["header"])
-    )
-    for row in response["data"]:
-        print "|".join(("{:>16}".format(str(row[col])) for col in response["header"]))
-
+def common_cycle(executor, mode_name, settings_cli):
+    """COMMON CYCLE FOR MANAGERS AND DISPATCHERS"""
+    while True:
+        choices = settings_cli
+        print(draw_choices(choices=choices))
+        choice = raw_input("{} >> ".format(mode_name))
+        solve = sort_result(executor=executor, choices=choices, num=int(choice))
+        print solve
 
 
 def manager_mode():
-    man = operators.Manager()
-    while True:
-        choices = {
-            "1": "planes",
-            "2": "planes_stat",
-            "3": "buy_plane"
-        }
-        # print(choices)
-        choice = raw_input("MANAGER MODE >> ")
-
-        draw_table("SELECT id, TIME(date_time) FROM flights")
-
+    """MANAGER MODE"""
+    manager = operators.Manager()
+    common_cycle(executor=manager, mode_name="MANAGER", settings_cli=settings.MANAGER_CLI)
 
 
 def dispatcher_mode():
+    """DISPATCHER MODE"""
     disp = operators.Dispatcher()
-    while True:
-        print("DISPATCHER MODE")
-        raw_input("D")
+    common_cycle(executor=disp, mode_name="DISPATCHER", settings_cli=settings.DISPATCHER_CLI)
 
 
 if __name__ == "__main__":
-
     mode = check_mode()
-
     if mode.manager:
         manager_mode()
     elif mode.dispatcher:

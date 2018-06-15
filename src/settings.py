@@ -1,11 +1,21 @@
 # -*- coding: utf-8 -*-
 """ SETTINGS MODULE """
 import random
+import logging
 
+# ######## APPLICATION SETTINGS #########
 DB_FILE = "airbase.db"
 AIR_LINES = 1
 PASSENGER_PAYMENT = 500
 CARGO_TON_PAYMENT = 1000
+#########################################
+
+
+# ########## LOGS #######################
+
+
+########################################
+
 
 # ######### CREATE TABLES ###############
 TABLES = {
@@ -165,6 +175,50 @@ FILLINGS = {
 STATE = {
   "airlines_planes": list(
     {"airline_id": 1, "plane_id": random.randint(1, 6)} for _ in xrange(20)
+  )
+}
+##############################################
+
+
+# ######### MANAGER COMMAND LINE INTERFACE ###
+MANAGER_CLI = {
+  "header": (
+    "description", "method", "action"
+  ),
+  "data": (
+    ("Airline STATISTICS", "airline_stat", None),
+    ("Airplanes PARK", "planes", None),
+    ("Airline planes STATISTICS", "planes_stat", None),
+    ("Show latest FLIGHTS", "flights", None),
+    ("Latest TRANSACTIONS", "transactions", None),
+    ("Latest NOTIFICATIONS from dispatcher", "notifications", None),
+    ("MARKET planes", "market_planes", None),
+
+    ("BUY plane", "buy_plane", {"description": "What plane would you like to buy? There is showing only available for purchase planes.\n"
+                                               "Input <N>/<n> if want to cancel.",
+                                "show": "market_available_planes"}),
+    ("SELL_PLANE", "sell_plane", {"description": "What plane would you like to sell?\n"
+                                                 "Input <N>/<n> if want to cancel.",
+                                  "show": "planes"}),
+    ("Get CREDIT", "credit", {"description": "How much money do want to get?\n"
+                                             "Input <N>/<n> if want to cancel.",
+                              "show": None}),
+    ("RESET", "reset", {"description": "Do you really want to reset?\n"
+                                       "Input <Y>/<y> to confirm.",
+                        "show": None})
+  )
+}
+##############################################
+
+
+# ###### DISPATCHER COMMAND LINE INTERFACE ###
+DISPATCHER_CLI = {
+  "header": (
+    "description", "method", "action"
+  ),
+  "data": (
+    ("Show latest FLIGHTS", "flights", None),
+    ("New FLIGHT", "flight", "new_flight"),
   )
 }
 ##############################################

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ MAIN MODULE """
 from dbquery import DB
+import dbmake
 import settings
 import time
 from abc import ABCMeta
@@ -27,9 +28,19 @@ class Operator(object):
     ADD_TRANSACTION = "INSERT INTO transactions (value, description, date_time, airline_id) " \
                       "values({value}, '{description}', {date_time}, {airline_id})"
 
-    BALANCE_QUERY = "SELECT balance FROM airlines WHERE id={id}"
+    AIRLINE_STAT_QUERY = "SELECT a.id, a.balance, SUM(p.passengers) AS passengers, SUM(p.cargo) AS cargo, " \
+                         "SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)) AS flights, SUM(p.price) AS price " \
+                         "FROM planes p, airlines_planes ap, plane_types pt, airlines a " \
+                         "WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id={airline_id} AND a.id = ap.airline_id " \
+                         "GROUP BY a.id"
 
-    MARKET_PLANE_PRICE_QUERY = "SELECT price FROM planes WHERE id={plane_id}"
+    BALANCE_QUERY = "SELECT balance " \
+                    "FROM airlines " \
+                    "WHERE id={id}"
+
+    MARKET_PLANE_PRICE_QUERY = "SELECT price " \
+                               "FROM planes " \
+                               "WHERE id={plane_id}"
 
     MARKET_PLANES_QUERY = "SELECT p.id, p.name, pt.name AS type, price, passengers, cargo " \
                           "FROM planes p, plane_types pt " \
@@ -38,15 +49,24 @@ class Operator(object):
     MARKET_AVAILABLE_PLANES_QUERY = "SELECT * FROM planes AS p " \
                                     "WHERE p.price < (SELECT balance FROM airlines AS a WHERE a.id={airline_id})"
 
-    DELETE_PLANE_QUERY = "DELETE FROM airlines_planes WHERE id={id}"
+    DELETE_PLANE_QUERY = "DELETE " \
+                         "FROM airlines_planes " \
+                         "WHERE id={id}"
 
     FLIGHTS_QUERY = "SELECT f.id AS id, f.plane_id AS plane_id, p.name AS plane_name, f.passengers AS passengers, f.cargo AS cargo, f.date_time AS date_time " \
                     "FROM flights f, planes p, airlines_planes ap " \
                     "WHERE f.plane_id=ap.id AND ap.plane_id=p.id AND ap.airline_id={airline_id} " \
                     "ORDER BY date_time DESC LIMIT 16"
 
-    GET_MANAGER_QUERY = "SELECT name FROM staff WHERE position='manager' AND airline_id={id} LIMIT 1;"
-    GET_DISPATCHER_QUERY = "SELECT name FROM staff WHERE position='dispatcher' AND airline_id={id} LIMIT 1;"
+    GET_MANAGER_QUERY = "SELECT name " \
+                        "FROM staff " \
+                        "WHERE position='manager' AND airline_id={id} " \
+                        "LIMIT 1;"
+
+    GET_DISPATCHER_QUERY = "SELECT name " \
+                           "FROM staff " \
+                           "WHERE position='dispatcher' AND airline_id={id} " \
+                           "LIMIT 1;"
 
     NOTIFICATIONS_QUERY = "SELECT id, text, date_time " \
                           "FROM notifications " \
@@ -67,18 +87,25 @@ class Operator(object):
                             "SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)) AS flights, SUM(p.price) AS price " \
                             "FROM planes p, airlines_planes ap, plane_types pt " \
                             "WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id={airline_id} " \
-                            "GROUP BY p.plane_type_id"
+                            "GROUP BY p.plane_type_id " \
+                            "ORDER BY p.plane_type_id"
 
     TRANSACTIONS_QUERY = "SELECT id, value, description, date_time " \
                          "FROM transactions " \
                          "WHERE airline_id={airline_id} " \
                          "ORDER BY date_time DESC LIMIT 5"
 
-    UPDATE_BALANCE_QUERY = "UPDATE airlines SET balance={balance} WHERE id={airline_id}"
+    UPDATE_BALANCE_QUERY = "UPDATE airlines " \
+                           "SET balance={balance} " \
+                           "WHERE id={airline_id}"
 
     @property
     def balance(self):
         return DB.query(self.BALANCE_QUERY.format(id=self.airline_id))[0][0]
+
+    @property
+    def flights(self):
+        return DB.query_mod(self.FLIGHTS_QUERY.format(airline_id=self.airline_id))
 
     @property
     def planes(self):
@@ -110,6 +137,14 @@ class Manager(Operator):
     """Manager class"""
     def __init__(self):
         self.name = DB.query(self.GET_MANAGER_QUERY.format(id=settings.AIR_LINES))[0][0]
+
+    def credit(self, money):
+        money = float(money)
+        self._get_money(money, "GET Credit")
+
+    @property
+    def airline_stat(self):
+        return DB.query_mod(self.AIRLINE_STAT_QUERY.format(airline_id=self.airline_id))
 
     @property
     def transactions(self):
@@ -156,16 +191,20 @@ class Manager(Operator):
         self._del_plane(plane_id)
         self._get_money(price, "sold plane # {}".format(plane_id))
 
+    @classmethod
+    def reset(cls, confirm="Y"):
+        if confirm.lower() == "y":
+            dbmake.delete_tables()
+            dbmake.main()
+        else:
+            print("RESET WAS CANCELED")
+
 
 class Dispatcher(Operator):
     """Dispatcher class"""
     def __init__(self):
         self.airline_id = settings.AIR_LINES
         self.name = DB.query(self.GET_DISPATCHER_QUERY.format(id=settings.AIR_LINES))[0][0]
-
-    @property
-    def flights(self):
-        return DB.query_mod(self.FLIGHTS_QUERY.format(airline_id=self.airline_id))
 
     def _add_flight(self, plane_id, date_time, passengers, cargo):
         DB.query(self.ADD_FLIGHT_QUERY.format(plane_id=plane_id, date_time=date_time, passengers=passengers, cargo=cargo))
@@ -191,8 +230,12 @@ class Dispatcher(Operator):
             left_cargo -= placed_cargo
 
         if left_passengers or left_cargo:
-            notification = "LEFT: {} passengers and {} tons cargo".format(left_passengers, left_cargo)
-            self.push_notification(notification)
+            notification = "NOT FLOUGHT: {} passengers and {} tons cargo".format(left_passengers, left_cargo)
+        else:
+            free_seats = self.planes_stat["data"][0]["passengers"] - all_passengers
+            free_cargo = self.planes_stat["data"][1]["cargo"] - all_cargo
+            notification = "FREE: {} seats and {} tons cargo".format(free_seats, free_cargo)
+        self.push_notification(notification)
 
     def push_notification(self, notification):
         DB.query(self.ADD_NOTIFICATION.format(airline_id=self.airline_id, date_time=time.time(), text=notification))

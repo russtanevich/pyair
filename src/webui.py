@@ -45,8 +45,7 @@ def flight():
 
 @app.route("/reset")
 def reset():
-    dbmake.delete_tables()
-    dbmake.main()
+    man.reset(confirm="y")
     return redirect("/")
 
 
@@ -65,7 +64,7 @@ def buy(plane_id):
 @app.route("/credit", methods=["POST"])
 def credit():
     if request.method == "POST":
-        credit = float(request.values["credit"])
-        man._get_money(credit, "GET CREDIT")
+        money = float(request.values["credit"])
+        man.credit(money)
     return redirect("/")
 

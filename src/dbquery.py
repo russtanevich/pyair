@@ -29,7 +29,7 @@ class DB(object):
         conn.commit()
         conn.close()
         return {"header": header,
-                "data": tuple({ key: val for key, val in zip(header, row)} for row in data )}
+                "data": tuple({key: val for key, val in zip(header, row)} for row in data)}
 
     @classmethod
     def queries(cls, queries):
