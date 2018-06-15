@@ -12,7 +12,7 @@ class DB(object):
     def query(cls, query):
         conn = sqlite3.connect(cls.db_file)
         cur = conn.cursor()
-        print(query)
+        settings.db_logger.info(query)                         # LOGGER
         result = cur.execute(query).fetchall()
         conn.commit()
         conn.close()
@@ -22,7 +22,7 @@ class DB(object):
     def query_mod(cls, query):
         conn = sqlite3.connect(cls.db_file)
         cur = conn.cursor()
-        print(query)
+        settings.db_logger.info(query)                         # LOGGER
         response = cur.execute(query)
         header = tuple(arr[0] for arr in response.description)
         data = response.fetchall()
@@ -36,7 +36,7 @@ class DB(object):
         conn = sqlite3.connect(cls.db_file)
         cur = conn.cursor()
         for query in queries:
-            print(query)
+            settings.db_logger.info(query)                     # LOGGER
             cur.execute(query)
         conn.commit()
         conn.close()

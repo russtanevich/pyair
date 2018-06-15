@@ -1,16 +1,11 @@
 from flask import Flask, render_template, request, redirect
 import operators
-import datetime
-import dbmake
 import utils
 
 
 app = Flask(__name__)
 man = operators.Manager()
 disp = operators.Dispatcher()
-
-
-print man.planes_stat
 
 
 @app.route("/")

@@ -1,0 +1,22 @@
+2018-06-15 23:34:03,230 - SELECT name FROM staff WHERE position='manager' AND airline_id=1 LIMIT 1;
+2018-06-15 23:34:03,232 - SELECT name FROM staff WHERE position='dispatcher' AND airline_id=1 LIMIT 1;
+2018-06-15 23:34:12,683 - SELECT ap.id, p.name, pt.name AS type, p.price, p.passengers, p.cargo, (SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id) AS flights FROM airlines_planes ap, planes p, plane_types pt WHERE ap.plane_id=p.id AND pt.id = p.plane_type_id AND ap.airline_id=1
+2018-06-15 23:34:12,688 - SELECT p.id, p.name, pt.name AS type, price, passengers, cargo FROM planes p, plane_types pt WHERE pt.id=p.plane_type_id
+2018-06-15 23:34:12,696 - SELECT balance FROM airlines WHERE id=1
+2018-06-15 23:34:12,697 - SELECT pt.name AS plane_type, COUNT(*) AS planes, SUM(p.passengers) AS passengers, SUM(p.cargo) AS cargo, SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)) AS flights, SUM(p.price) AS price FROM planes p, airlines_planes ap, plane_types pt WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id=1 GROUP BY p.plane_type_id ORDER BY p.plane_type_id
+2018-06-15 23:34:12,701 - SELECT id, value, description, date_time FROM transactions WHERE airline_id=1 ORDER BY date_time DESC LIMIT 5
+2018-06-15 23:34:12,704 - SELECT id, text, date_time FROM notifications WHERE airline_id=1 ORDER BY date_time DESC LIMIT 5
+2018-06-15 23:34:12,707 - SELECT f.id AS id, f.plane_id AS plane_id, p.name AS plane_name, f.passengers AS passengers, f.cargo AS cargo, f.date_time AS date_time FROM flights f, planes p, airlines_planes ap WHERE f.plane_id=ap.id AND ap.plane_id=p.id AND ap.airline_id=1 ORDER BY date_time DESC LIMIT 16
+2018-06-15 23:34:12,710 - SELECT id, value, description, date_time FROM transactions WHERE airline_id=1 ORDER BY date_time DESC LIMIT 5
+2018-06-15 23:34:12,789 - SELECT balance FROM airlines WHERE id=1
+2018-06-15 23:34:12,792 - SELECT price FROM planes WHERE id=1
+2018-06-15 23:34:12,795 - SELECT balance FROM airlines WHERE id=1
+2018-06-15 23:34:12,798 - SELECT price FROM planes WHERE id=2
+2018-06-15 23:34:12,802 - SELECT balance FROM airlines WHERE id=1
+2018-06-15 23:34:12,803 - SELECT price FROM planes WHERE id=3
+2018-06-15 23:34:12,806 - SELECT balance FROM airlines WHERE id=1
+2018-06-15 23:34:12,809 - SELECT price FROM planes WHERE id=4
+2018-06-15 23:34:12,812 - SELECT balance FROM airlines WHERE id=1
+2018-06-15 23:34:12,815 - SELECT price FROM planes WHERE id=5
+2018-06-15 23:34:12,819 - SELECT balance FROM airlines WHERE id=1
+2018-06-15 23:34:12,821 - SELECT price FROM planes WHERE id=6

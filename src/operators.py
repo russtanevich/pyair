@@ -101,30 +101,37 @@ class Operator(object):
 
     @property
     def balance(self):
+        settings.logger.info("SHOW COMPANY'S BALANCE")
         return DB.query(self.BALANCE_QUERY.format(id=self.airline_id))[0][0]
 
     @property
     def flights(self):
+        settings.logger.info("SHOW FLIGHTS")
         return DB.query_mod(self.FLIGHTS_QUERY.format(airline_id=self.airline_id))
 
     @property
     def planes(self):
+        settings.logger.info("SHOW COMPANY'S PLANES")
         return DB.query_mod(self.OWN_PLANES_QUERY.format(airline_id=self.airline_id))
 
     @property
     def passenger_planes(self):
+        settings.logger.info("SHOW COMPANY'S PASSENGER PLANES")
         return DB.query_mod(self.OWN_PLANES_TYPE_QUERY.format(airline_id=self.airline_id, pt_name="passenger"))
 
     @property
     def cargo_planes(self):
+        settings.logger.info("SHOW COMPANY'S CARGO PLANES")
         return DB.query_mod(self.OWN_PLANES_TYPE_QUERY.format(airline_id=self.airline_id, pt_name="cargo"))
 
     @property
     def market_planes(self):
+        settings.logger.info("SHOW PLANES IN MARKET")
         return DB.query_mod(self.MARKET_PLANES_QUERY)
 
     @property
     def planes_stat(self):
+        settings.logger.info("SHOW STATISTICS BY PLANE TYPES")
         return DB.query_mod(self.OWN_PLANES_STAT_QUERY.format(airline_id=self.airline_id))
 
     def _get_money(self, payment, description=""):
@@ -138,33 +145,41 @@ class Manager(Operator):
     def __init__(self):
         self.name = DB.query(self.GET_MANAGER_QUERY.format(id=settings.AIR_LINES))[0][0]
 
-    def credit(self, money):
-        money = float(money)
-        self._get_money(money, "GET Credit")
-
     @property
     def airline_stat(self):
+        settings.logger.info("SHOW COMPANY'S STATISTICS")
         return DB.query_mod(self.AIRLINE_STAT_QUERY.format(airline_id=self.airline_id))
 
     @property
     def transactions(self):
+        settings.logger.info("SHOW TRANSACTIONS")
         return DB.query_mod(self.TRANSACTIONS_QUERY.format(airline_id=self.airline_id))
 
     @property
     def notifications(self):
+        settings.logger.info("SHOW notifications")
         return DB.query_mod(self.NOTIFICATIONS_QUERY.format(airline_id=self.airline_id))
 
     @property
     def market_available_planes(self):
+        settings.logger.info("SHOW AVAILABLE (FOR COST) PLANES")
         return DB.query_mod(self.MARKET_AVAILABLE_PLANES_QUERY.format(airline_id=self.airline_id))
 
+    def credit(self, money):
+        money = float(money)
+        self._get_money(money, "GET Credit")
+        settings.logger.info("GET CREDIT: ${}".format(money))
+
     def price_market_plane(self, plane_id):
+        settings.logger.info("INQUIRE market price of the plane #{}".format(plane_id))
         return DB.query(self.MARKET_PLANE_PRICE_QUERY.format(plane_id=plane_id))[0][0]
 
     def price_own_plane(self, plane_id):
+        settings.logger.info("Get price of own plane #{}".format(plane_id))
         return DB.query(self.OWN_PLANE_PRICE_QUERY.format(id=plane_id))[0][0]
 
     def can_buy_plane(self, plane_id):
+        settings.logger.info("Request for allowing to buy plane #{}".format(plane_id))
         return self.balance >= self.price_market_plane(plane_id)
 
     def _del_plane(self, plane_id):
@@ -183,6 +198,7 @@ class Manager(Operator):
             price = self.price_market_plane(plane_id)
             self._pay_money(price, "purchase plane # {}".format(plane_id))
             self._add_plane(plane_id)
+            settings.logger.info("BUY PLANE in market: #{}".format(plane_id))
         else:
             raise ValueError("No money - no honey")
 
@@ -190,14 +206,16 @@ class Manager(Operator):
         price = self.price_own_plane(plane_id)
         self._del_plane(plane_id)
         self._get_money(price, "sold plane # {}".format(plane_id))
+        settings.logger.info("Sold own plane #{}: ${}".format(plane_id, price))
 
     @classmethod
     def reset(cls, confirm="Y"):
         if confirm.lower() == "y":
             dbmake.delete_tables()
             dbmake.main()
+            settings.logger.info("RESET SYSTEM")
         else:
-            print("RESET WAS CANCELED")
+            settings.logger.info("RESET WAS CANCELED")
 
 
 class Dispatcher(Operator):
@@ -210,6 +228,7 @@ class Dispatcher(Operator):
         DB.query(self.ADD_FLIGHT_QUERY.format(plane_id=plane_id, date_time=date_time, passengers=passengers, cargo=cargo))
         payment = self.PASSENGER_PAYMENT * passengers + self.CARGO_TON_PAYMENT * cargo
         self._get_money(payment, "flight of plane # {}".format(plane_id))
+        settings.logger.info("FLIGHT by plane #{}: passengers: {}, cargo: {} tons".format(plane_id, passengers, cargo))
 
     def flight(self, all_passengers, all_cargo):
         left_passengers = all_passengers
@@ -228,14 +247,25 @@ class Dispatcher(Operator):
             placed_cargo = cargo if cargo <= left_cargo else left_cargo
             self._add_flight(plane_id=plane_id, date_time=time.time(), passengers=0, cargo=placed_cargo)
             left_cargo -= placed_cargo
+        self._create_notifications(left_passengers, left_cargo, all_passengers, all_cargo)
 
-        if left_passengers or left_cargo:
-            notification = "NOT FLOUGHT: {} passengers and {} tons cargo".format(left_passengers, left_cargo)
+    def _create_notifications(self, left_passengers, left_cargo, all_passengers, all_cargo):
+        notifications = []
+        if left_passengers:
+            notifications.append("NOT SERVED: {} passengers".format(left_passengers))
         else:
             free_seats = self.planes_stat["data"][0]["passengers"] - all_passengers
+            if free_seats > 0:
+                notifications.append("NOT USED: {} passenger seats".format(free_seats))
+        if left_cargo:
+            notifications.append("NOT SERVED: {} tons cargo".format(left_cargo))
+        else:
             free_cargo = self.planes_stat["data"][1]["cargo"] - all_cargo
-            notification = "FREE: {} seats and {} tons cargo".format(free_seats, free_cargo)
-        self.push_notification(notification)
+            if free_cargo > 0:
+                notifications.append("NOT USED: {} cargo tons".format(free_cargo))
+        for notification in notifications:
+            self.push_notification(notification)
 
     def push_notification(self, notification):
         DB.query(self.ADD_NOTIFICATION.format(airline_id=self.airline_id, date_time=time.time(), text=notification))
+        settings.logger.info("PUSH NOTIFICATION:  <{}>".format(notification))

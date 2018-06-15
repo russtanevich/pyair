@@ -1,5 +1,6 @@
 """Utils module"""
 import datetime
+import prettytable
 
 
 def date_filter(seconds):
@@ -9,14 +10,18 @@ def date_filter(seconds):
 
 def draw_choices(choices):
     """DRAW CHOICES FOR CLI"""
-    return "\n".join("{}\t- {}".format(num, row[0]) for num, row in enumerate(choices["data"]))
+    return "\n{}\n".format("\n".join("{}\t- {}".format(num, row[0]) for num, row in enumerate(choices["data"])))
 
 
 def draw_table(response):
     """DRAW TABLE RESULT CLI QUERY"""
-    header = "|".join(("{:>16}".format(str(col)) for col in response["header"]))
-    body = "\n".join("|".join(("{:>16}".format(str(row[col])) for col in response["header"])) for row in response["data"])
-    return "\n".join((header, body))
+    table = prettytable.PrettyTable(response["header"])
+    for row in response["data"]:
+        table.add_row(tuple(str(row[col]) for col in response["header"]))
+    return table
+    # header = "|".join(("{:>16}".format(str(col)) for col in response["header"]))
+    # body = "\n".join("|".join(("{:>16}".format(str(row[col])) for col in response["header"])) for row in response["data"])
+    # return "\n{}\n".format("\n".join((header, body)))
 
 
 def sort_result(executor, choices, num):
@@ -35,7 +40,7 @@ def sort_result(executor, choices, num):
         if additional_action["show"]:
             response = executor.__getattribute__(additional_action["show"])
             print(draw_table(response))
-        arg = raw_input("{}:\n ?>>".format(additional_action["description"]))
+        arg = raw_input("{}:\n ?>> ".format(additional_action["description"]))
         if arg not in "Nn":
             executor.__getattribute__(action)(arg)
             status = "DONE!"

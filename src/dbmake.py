@@ -2,11 +2,13 @@
 """ SET DATABASE MODULE """
 from settings import TABLES, FILLINGS, STATE
 from dbquery import DB
+import settings
 
 
 def delete_tables():
     queries = ("DELETE FROM {}".format(key) for key in TABLES)
     DB.queries(queries)
+    settings.logger.info("CLEAR ALL TABLES")
 
 
 def main():
@@ -31,12 +33,14 @@ def build_tables(tables):
     """build database function"""
     queries = tables.values()
     DB.queries(queries=queries)
+    settings.logger.info("BUILT {} TABLES".format(len(tables)))
 
 
 def fill_tables(fillings):
     """FILL database tables"""
     queries = _gen_fill_queries(fillings)
     DB.queries(queries=queries)
+    settings.logger.info("FILLED tables")
 
 
 if __name__ == "__main__":

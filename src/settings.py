@@ -2,6 +2,8 @@
 """ SETTINGS MODULE """
 import random
 import logging
+import sys
+
 
 # ######## APPLICATION SETTINGS #########
 DB_FILE = "airbase.db"
@@ -12,8 +14,25 @@ CARGO_TON_PAYMENT = 1000
 
 
 # ########## LOGS #######################
+def make_logger(logfile, log_name, screen=False):
+    """LOGGER FACTORY"""
+    logger = logging.getLogger(name=log_name)
+    formatter = logging.Formatter('%(asctime)s - %(message)s')
+    if screen:
+        screen_handler = logging.StreamHandler(sys.stdout)
+        screen_handler.setLevel(logging.INFO)
+        screen_handler.setFormatter(formatter)
+        logger.addHandler(screen_handler)
+    file_handler = logging.FileHandler(logfile)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    logger.setLevel(logging.INFO)
+    return logger
 
 
+db_logger = make_logger(logfile="logs/db.log", log_name="DB")
+logger = make_logger(logfile="logs/log.log", log_name="OPERATIONS")
 ########################################
 
 
