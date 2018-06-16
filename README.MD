@@ -1,6 +1,6 @@
 BEFORE USING APP:
 
-- >>> pip install -r requirements.txt
+- Launch >>> pip install -r requirements.txt
 
 - create dir /src/logs/
 
