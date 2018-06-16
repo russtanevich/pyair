@@ -14,4 +14,4 @@ WINDOWS: >>> set FLASK_APP=webui.py /  >>> flask run
 
 - Use >>> python -m unittest tests for testing
 
-![Иллюстрация БД](https://github.com/russtanevich/pyair/db_scheme.png)
+![Иллюстрация БД](https://github.com/russtanevich/pyair/blob/master/db_scheme.png)
