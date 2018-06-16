@@ -1,6 +1,10 @@
 BEFORE USING APP:
 
-- PLEASE LAUNCH dbmake.py script - for creating database tables.
+- >>> pip install -r requirements.txt
+
+- create dir /src/logs/
+
+- LAUNCH dbmake.py script - for creating database tables.
 
 - For launching web-interface:
 
