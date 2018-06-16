@@ -4,9 +4,18 @@ import operators
 
 class BaseSequence(unittest.TestCase):
 
-    def setUp(self):
-        self.manager = operators.Manager()
-        self.dispatcher = operators.Dispatcher()
+    @classmethod
+    def setUpClass(cls):
+        cls.manager = operators.Manager()
+        cls.dispatcher = operators.Dispatcher()
+
+    def test_reset(self):
+        self.manager.reset()
+        balance = self.manager.balance
+        flights_count = self.manager.airline_stat["data"][0]["flights"]
+        transactions_count = len(self.manager.transactions["data"])
+        notification_count = len(self.manager.notifications["data"])
+        self.assertTrue(int(balance) == flights_count == transactions_count == notification_count == 0)
 
     def test_credit(self):
         pre_balance = self.manager.balance
@@ -35,13 +44,5 @@ class BaseSequence(unittest.TestCase):
         post_flights = self.manager.airline_stat["data"][0]["flights"]
         self.assertTrue(pre_balance < post_balance and pre_flights < post_flights)
 
-    def test_reset(self):
-        self.manager.reset()
-        balance = self.manager.balance
-        flights_count = self.manager.airline_stat["data"][0]["flights"]
-        transactions_count = len(self.manager.transactions["data"])
-        notification_count = len(self.manager.notifications["data"])
-        self.assertTrue(int(balance)==flights_count==transactions_count==notification_count==0)
-
     def tearDown(self):
-        pass
+        self.manager.reset()
