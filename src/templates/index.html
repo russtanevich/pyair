@@ -171,7 +171,7 @@
                                         COUNT PASSENGERS WHO WANTS
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" class="form-control" name="passengers" placeholder="PERSONS">
+                                        <input type="text" class="form-control" name="passengers" placeholder="PERSONS" required pattern="^[ 0-9]+$">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -179,7 +179,7 @@
                                         TONS CARGO NEED
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" class="form-control" name="cargo" placeholder="TONS">
+                                        <input type="text" class="form-control" name="cargo" placeholder="TONS" required pattern="\d+(\.\d{1})?">
                                     </div>
                                 </div>
                             </div>
