@@ -13,3 +13,5 @@ WINDOWS: >>> set FLASK_APP=webui.py /  >>> flask run
 - Launch <cli.py> - for running command-line interface.
 
 - Use >>> python -m unittest tests for testing
+
+![Иллюстрация БД](https://github.com/russtanevich/pyair/db_scheme.png)
