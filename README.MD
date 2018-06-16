@@ -5,6 +5,7 @@ BEFORE USING APP:
 - create dir /src/logs/
 
 WEB UI Windows: >>> set FLASK_APP=webui.py /  >>> flask run
+
 CLI - Launch <cli.py>
 
 СХЕМА БД
