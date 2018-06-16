@@ -8,7 +8,7 @@ WEB UI Windows: >>> set FLASK_APP=webui.py /  >>> flask run
 
 CLI - Launch <cli.py>
 
--- СХЕМА БД
+-- СХЕМА БД --
 ![Иллюстрация БД](https://github.com/russtanevich/pyair/blob/master/db_scheme.png)
 
 
