@@ -32,11 +32,10 @@ def validate_choice(choice, choices):
     """CHECK CHOICE FOR VALIDATION. SKIP UNVALIDATED INPUT"""
     try:
         choice = int(choice)
-    except TypeError:
-        pass
+    except ValueError:
+        return
     else:
-        range_choices = tuple(_ for _ in range(len(choices["data"])))
-        return int(choice) in range_choices
+        return choice in tuple(_ for _ in range(len(choices["data"])))
 
 
 def common_cycle(executor, mode_name, settings_cli):

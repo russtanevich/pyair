@@ -2381,3 +2381,9 @@
 2018-06-17 11:09:58,936 - INSERT INTO airlines_planes ('airline_id', 'plane_id') values (1, 3)
 2018-06-17 11:10:01,121 - SELECT ap.id, p.name, pt.name AS type, p.price, p.passengers, p.cargo, (SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id) AS flights FROM airlines_planes ap, planes p, plane_types pt WHERE ap.plane_id=p.id AND pt.id = p.plane_type_id AND ap.airline_id=1
 2018-06-17 11:10:02,427 - SELECT a.id, a.balance, SUM(p.passengers) AS passengers, SUM(p.cargo) AS cargo, SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)) AS flights, SUM(p.price) AS price FROM planes p, airlines_planes ap, plane_types pt, airlines a WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id=1 AND a.id = ap.airline_id GROUP BY a.id
+2018-06-17 11:12:11,190 - SELECT name FROM staff WHERE position='manager' AND airline_id=1 LIMIT 1;
+2018-06-17 11:12:26,003 - SELECT name FROM staff WHERE position='manager' AND airline_id=1 LIMIT 1;
+2018-06-17 11:13:50,029 - SELECT name FROM staff WHERE position='manager' AND airline_id=1 LIMIT 1;
+2018-06-17 11:14:55,237 - SELECT name FROM staff WHERE position='manager' AND airline_id=1 LIMIT 1;
+2018-06-17 11:14:59,088 - SELECT ap.id, p.name, pt.name AS type, p.price, p.passengers, p.cargo, (SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id) AS flights FROM airlines_planes ap, planes p, plane_types pt WHERE ap.plane_id=p.id AND pt.id = p.plane_type_id AND ap.airline_id=1
+2018-06-17 11:15:00,194 - SELECT pt.name AS plane_type, COUNT(*) AS planes, SUM(p.passengers) AS passengers, SUM(p.cargo) AS cargo, SUM((SELECT COUNT(*) FROM flights f WHERE f.plane_id=ap.id)) AS flights, SUM(p.price) AS price FROM planes p, airlines_planes ap, plane_types pt WHERE ap.plane_id=p.id AND pt.id=p.plane_type_id AND ap.airline_id=1 GROUP BY p.plane_type_id ORDER BY p.plane_type_id
