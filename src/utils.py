@@ -14,14 +14,18 @@ def draw_choices(choices):
 
 
 def draw_table(response):
-    """DRAW TABLE RESULT CLI QUERY"""
+    """DRAW TABLE OF RESULT CLI QUERY. USING PRETTY TABLE MODULE"""
     table = prettytable.PrettyTable(response["header"])
     for row in response["data"]:
         table.add_row(tuple(str(row[col]) for col in response["header"]))
     return table
-    # header = "|".join(("{:>16}".format(str(col)) for col in response["header"]))
-    # body = "\n".join("|".join(("{:>16}".format(str(row[col])) for col in response["header"])) for row in response["data"])
-    # return "\n{}\n".format("\n".join((header, body)))
+
+
+# def draw_table(response):
+#     """ALTERNATIVE DRAW TABLE"""
+#     header = "|".join(("{:>16}".format(str(col)) for col in response["header"]))
+#     body = "\n".join("|".join(("{:>16}".format(str(row[col])) for col in response["header"])) for row in response["data"])
+#     return "\n{}\n".format("\n".join((header, body)))
 
 
 def sort_result(executor, choices, num):
@@ -30,23 +34,20 @@ def sort_result(executor, choices, num):
     action = choices["data"][num][1]
 
     if not additional_action:
-        response = executor.__getattribute__(action)
-        return draw_table(response)
-
+        response = draw_table(executor.__getattribute__(action))
     elif additional_action == "new_flight":
         new_flight(executor, action)
-        status = "DONE!"
+        response = "DONE!"
     else:
         if additional_action["show"]:
-            response = executor.__getattribute__(additional_action["show"])
-            print(draw_table(response))
+            print(draw_table(executor.__getattribute__(additional_action["show"])))
         arg = raw_input("{}:\n ?>> ".format(additional_action["description"]))
-        if arg not in "Nn":
-            executor.__getattribute__(action)(arg)
-            status = "DONE!"
+        if arg in "Nn":
+            response = "CANCELED"
         else:
-            status = "CANCELED"
-    return status
+            executor.__getattribute__(action)(arg)
+            response = "DONE!"
+    return response
 
 
 def new_flight(executor, method):

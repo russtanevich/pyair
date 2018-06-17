@@ -16,16 +16,6 @@ def check_mode():
     return args
 
 
-def common_cycle(executor, mode_name, settings_cli):
-    """COMMON CYCLE FOR MANAGERS AND DISPATCHERS"""
-    while True:
-        choices = settings_cli
-        print(draw_choices(choices=choices))
-        choice = raw_input("{} >> ".format(mode_name))
-        solve = sort_result(executor=executor, choices=choices, num=int(choice))
-        print solve
-
-
 def manager_mode():
     """MANAGER MODE"""
     manager = operators.Manager()
@@ -36,6 +26,27 @@ def dispatcher_mode():
     """DISPATCHER MODE"""
     disp = operators.Dispatcher()
     common_cycle(executor=disp, mode_name="DISPATCHER", settings_cli=settings.DISPATCHER_CLI)
+
+
+def validate_choice(choice, choices):
+    """CHECK CHOICE FOR VALIDATION. SKIP UNVALIDATED INPUT"""
+    try:
+        choice = int(choice)
+    except TypeError:
+        pass
+    else:
+        range_choices = tuple(_ for _ in range(len(choices["data"])))
+        return int(choice) in range_choices
+
+
+def common_cycle(executor, mode_name, settings_cli):
+    """COMMON CYCLE FOR MANAGERS AND DISPATCHERS"""
+    choices = settings_cli
+    while True:
+        print(draw_choices(choices=choices))
+        choice = raw_input("{} >> ".format(mode_name))
+        if validate_choice(choice=choice, choices=choices):
+            print(sort_result(executor=executor, choices=choices, num=int(choice)))
 
 
 if __name__ == "__main__":
