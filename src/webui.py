@@ -1,9 +1,16 @@
-from flask import Flask, render_template, request, redirect
-import operators
-import utils
+"""Flask web UI for PyAir."""
+import os
+from flask import Flask, flash, redirect, render_template, request, url_for
+
+if __package__:
+    from . import operators, utils
+else:
+    import operators
+    import utils
 
 
 app = Flask(__name__)
+app.secret_key = os.environ.get("PYAIR_SECRET_KEY", "pyair-dev-secret")
 man = operators.Manager()
 disp = operators.Dispatcher()
 
@@ -21,41 +28,56 @@ def home_page():
         "dispatcher_name": disp.name,
         "flights": disp.flights,
         "date_filter": utils.date_filter,
-        "can_buy_plane": man.can_buy_plane
+        "can_buy_plane": man.can_buy_plane,
     }
-    return render_template('index.html', **context)
+    return render_template("index.html", **context)
 
 
-@app.route('/flight', methods=['POST'])
+@app.route("/flight", methods=["POST"])
 def flight():
-    if request.method == 'POST':
-        data = request.values
-        disp.flight(all_passengers=int(data["passengers"]), all_cargo=float(data["cargo"]))
-    return redirect("/")
+    try:
+        passengers = int(request.form["passengers"])
+        cargo = float(request.form["cargo"])
+        disp.flight(all_passengers=passengers, all_cargo=cargo)
+    except (KeyError, ValueError) as exc:
+        flash(f"Flight error: {exc}", "danger")
+    return redirect(url_for("home_page"))
 
 
-@app.route("/reset")
+@app.route("/reset", methods=["GET", "POST"])
 def reset():
     man.reset(confirm="y")
-    return redirect("/")
+    flash("System has been reset.", "success")
+    return redirect(url_for("home_page"))
 
 
-@app.route("/sell_<plane_id>")
+@app.route("/sell_<int:plane_id>")
 def sell(plane_id):
-    man.sell_plane(plane_id=plane_id)
-    return redirect("/")
+    try:
+        man.sell_plane(plane_id=plane_id)
+    except ValueError as exc:
+        flash(str(exc), "danger")
+    return redirect(url_for("home_page"))
 
 
-@app.route("/buy_<plane_id>")
+@app.route("/buy_<int:plane_id>")
 def buy(plane_id):
-    man.buy_plane(plane_id=plane_id)
-    return redirect("/")
+    try:
+        man.buy_plane(plane_id=plane_id)
+    except ValueError as exc:
+        flash(str(exc), "danger")
+    return redirect(url_for("home_page"))
 
 
 @app.route("/credit", methods=["POST"])
 def credit():
-    if request.method == "POST":
-        money = float(request.values["credit"])
+    try:
+        money = float(request.form["credit"])
         man.credit(money)
-    return redirect("/")
+    except (KeyError, ValueError) as exc:
+        flash(f"Credit error: {exc}", "danger")
+    return redirect(url_for("home_page"))
 
+
+if __name__ == "__main__":
+    app.run(debug=os.environ.get("FLASK_DEBUG", "").lower() in ("1", "true"))

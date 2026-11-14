@@ -15,6 +15,13 @@
 
     <body>
         <div class="container-fluid">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}" role="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
         <div class="row">
             <div class="col-sm-8">
                 <div class="panel panel-success">
@@ -26,7 +33,7 @@
                         <div class="col-sm-7">
                             <div class="row">
                                 <div class="col-sm-6">
-                                    <button type="button" class="btn btn-success btn-lg form-control">BALANCE <b>${{ balance/1000000 }}M</b></button>
+                                    <button type="button" class="btn btn-success btn-lg form-control">BALANCE <b>${{ "%.2f"|format(balance / 1000000) }}M</b></button>
                                 </div>
                                 <div class="col-sm-6">
                                     <a href="/reset"><button type="button" class="btn btn-danger btn-lg form-control">RESET</button></a>
@@ -55,7 +62,7 @@
                                                     <td>{{ plane.id }}</td>
                                                     <td>{{ plane.name }}</td>
                                                     <td>{{ plane.type }}</td>
-                                                    <td>${{ plane.price/1000000 }}M</td>
+                                                    <td>${{ "%.2f"|format(plane.price / 1000000) }}M</td>
                                                     <td>{{ plane.passengers }}</td>
                                                     <td>{{ plane.cargo }}</td>
                                                     <td>{{ plane.flights }}</td>
@@ -100,7 +107,7 @@
                                                 <tr>
                                                     <td>{{ transaction.id }}</td>
                                                     <td>{{ date_filter(transaction.date_time) }}</td>
-                                                    <td>{{ transaction.value / 1000 }}k$</td>
+                                                    <td>{{ "%.2f"|format(transaction.value / 1000) }}k$</td>
                                                     <td>{{ transaction.description }}</td>
                                                 </tr>
                                                 {% endfor %}
@@ -127,7 +134,7 @@
                                                     <tr>
                                                         <td>{{ plane.name }}</td>
                                                         <td>{{ plane.type }}</td>
-                                                        <td>${{ plane.price/1000000 }}M</td>
+                                                        <td>${{ "%.2f"|format(plane.price / 1000000) }}M</td>
                                                         <td>{{ plane.passengers }}</td>
                                                         <td>{{ plane.cargo }}</td>
                                                         <td>
@@ -146,7 +153,7 @@
 
                                 <form method="POST" action="/credit">
                                     <div class="input-group">
-                                        <input name="credit" type="text" class="form-control" placeholder="Input CREDIT in $" required pattern="^[ 0-9]+$">
+                                        <input name="credit" type="number" min="1" step="any" class="form-control" placeholder="Input CREDIT in $" required>
                                         <span class="input-group-btn">
                                             <button class="btn btn-success" type="submit">GET CREDIT</button>
                                         </span>
@@ -171,7 +178,7 @@
                                         COUNT PASSENGERS WHO WANTS
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" class="form-control" name="passengers" placeholder="PERSONS" required pattern="^[ 0-9]+$">
+                                        <input type="number" min="0" step="1" class="form-control" name="passengers" placeholder="PERSONS" required>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -179,7 +186,7 @@
                                         TONS CARGO NEED
                                     </div>
                                     <div class="col-sm-6">
-                                        <input type="text" class="form-control" name="cargo" placeholder="TONS" required pattern="\d+(\.\d{1})?">
+                                        <input type="number" min="0" step="any" class="form-control" name="cargo" placeholder="TONS" required>
                                     </div>
                                 </div>
                             </div>
@@ -222,8 +229,6 @@
             </div>
         </div>
 
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
         <script src="{{url_for('static', filename='js/bootstrap.min.js')}}"></script>
 
     </body>

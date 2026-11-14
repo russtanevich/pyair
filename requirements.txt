@@ -1,2 +1,2 @@
-flask
-prettytable
+Flask>=3.0,<4.0
+prettytable>=3.10,<4.0

@@ -1,50 +1,69 @@
-# -*- coding: utf-8 -*-
-""" SET DATABASE MODULE """
-from settings import TABLES, FILLINGS, STATE
-from dbquery import DB
-import settings
+"""SET DATABASE MODULE"""
+if __package__:
+    from . import settings
+    from .dbquery import DB
+    from .settings import FILLINGS, TABLES
+else:
+    import settings
+    from dbquery import DB
+    from settings import FILLINGS, TABLES
 
 
 def delete_tables():
-    queries = ("DELETE FROM {}".format(key) for key in TABLES)
+    """Delete all rows from configured tables."""
+    queries = (f"DELETE FROM {key}" for key in TABLES)
     DB.queries(queries)
     settings.logger.info("CLEAR ALL TABLES")
 
 
 def main():
+    """Create database tables and populate initial data."""
     build_tables(tables=TABLES)
     fill_tables(fillings=FILLINGS)
-    fill_tables(fillings=STATE)
+    fill_tables(fillings=settings.generate_state())
+
+
+def ensure_initialized():
+    """Initialize tables and seed data if the database is empty."""
+    existing = {
+        row[0]
+        for row in DB.query(
+            "SELECT name FROM sqlite_master WHERE type='table'"
+        )
+    }
+    if not set(TABLES).issubset(existing):
+        main()
+        return
+    airlines_count = DB.query("SELECT COUNT(*) FROM airlines")[0][0]
+    if airlines_count == 0:
+        fill_tables(fillings=FILLINGS)
+        fill_tables(fillings=settings.generate_state())
 
 
 def _gen_fill_queries(fillings):
-    for table in fillings:
-        for raw in fillings[table]:
-            pairs = raw.items()
-            keys = tuple(pair[0] for pair in pairs)
-            values = tuple(pair[1] for pair in pairs)
-            query = "INSERT INTO {table} {keys} values {values}".format(
-                table=table, keys=str(keys), values=str(values)
-            )
-            yield query
+    for table, rows in fillings.items():
+        if table not in TABLES:
+            raise ValueError(f"Unknown table: {table}")
+        for row in rows:
+            keys = tuple(row.keys())
+            values = tuple(row.values())
+            cols = ", ".join(keys)
+            placeholders = ", ".join("?" for _ in keys)
+            sql = f"INSERT INTO {table} ({cols}) VALUES ({placeholders})"
+            yield sql, values
 
 
 def build_tables(tables):
-    """build database function"""
-    queries = tables.values()
-    DB.queries(queries=queries)
-    settings.logger.info("BUILT {} TABLES".format(len(tables)))
+    """Build database tables."""
+    DB.queries(tables.values())
+    settings.logger.info("BUILT %d TABLES", len(tables))
 
 
 def fill_tables(fillings):
-    """FILL database tables"""
-    queries = _gen_fill_queries(fillings)
-    DB.queries(queries=queries)
+    """Fill database tables with initial rows."""
+    DB.queries(_gen_fill_queries(fillings))
     settings.logger.info("FILLED tables")
 
 
 if __name__ == "__main__":
     main()
-
-
-
