@@ -1,15 +1,19 @@
-BEFORE USING APP:
+BEFORE USING APP (Python 3.10+):
 
-- Launch >>> pip install -r requirements.txt
+- Install dependencies:
+  `pip install -r requirements.txt`
 
-- create dir /src/logs/
+- Run Web UI (Flask 3):
+  `flask --app src/webui run`
+  (or from `src/`: `flask --app webui run`, or `python3 src/webui.py`)
 
-WEB UI Windows: >>> set FLASK_APP=webui.py /  >>> flask run
+- Run CLI:
+  `python3 src/cli.py -m` (manager mode)
+  `python3 src/cli.py -d` (dispatcher mode)
 
-CLI - Launch <cli.py>
+- Run tests:
+  `python3 -m unittest discover -s src`
+  (or from `src/`: `python3 -m unittest tests`)
 
 -- СХЕМА БД --
 ![Иллюстрация БД](https://github.com/russtanevich/pyair/blob/master/db_scheme.png)
-
-
-- Use >>> python -m unittest tests for testing.
